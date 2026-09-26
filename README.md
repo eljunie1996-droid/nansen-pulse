@@ -97,7 +97,7 @@ Checks are manual. There are no background alerts. Rolling windows may overlap; 
 - Search by name/symbol covers the loaded inventory; contract lookup depends on Nansen coverage.
 - Watchlists are browser-local, without accounts or cross-device sync. Clearing browser storage removes them.
 - Signals does not scan the whole market. Large-cap classification is an application filter, not verified asset identity.
-- No trading execution, automatic monitoring or public hosted service is included.
+- No trading execution or automatic monitoring is included. The shared hosted demo has limited API capacity.
 
 ## Troubleshooting
 
