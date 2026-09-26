@@ -1,0 +1,22 @@
+const assert=require('node:assert/strict');
+const {analyze}=require('./public/wallet-lens');
+const now=Date.parse('2026-09-23T13:00:00Z'),stamp=new Date(now).toISOString();
+function input(price,smart,pnl,count=4){return {now,marketAt:stamp,market:{price_change:price,volume:1e6},flow:{ok:true,fetched_at:stamp,data:{smart_trader_net_flow_usd:smart,smart_trader_wallet_count:count,top_pnl_net_flow_usd:pnl,top_pnl_wallet_count:4,whale_net_flow_usd:0,public_figure_net_flow_usd:0,exchange_net_flow_usd:100000}}}}
+assert.equal(analyze(input(.1,-10000,-2000)).kind,'divergence');
+assert.match(analyze(input(-.1,10000,2000)).headline,/Price down/);
+assert.equal(analyze(input(.1,10000,-2000)).kind,'split');
+assert.equal(analyze(input(null,10000,2000)).comparison,false);
+assert.equal(analyze(input(.001,10000,2000)).kind,'inflow');
+assert.equal(analyze(input(.1,null,null)).kind,'quiet');
+assert.equal(analyze(input(.1,0,0)).kind,'quiet');
+assert.equal(analyze(input(.1,100,200)).kind,'quiet');
+assert.equal(analyze(input(.1,10000,2000,1)).cautions.some(x=>/narrow participation/.test(x)),true);
+assert.equal(analyze(input(.1,10000,2000,0)).cautions.some(x=>/count of zero/.test(x)),true);
+assert.equal(analyze(input(.1,10000,2000)).evidence[4].wallets,null);
+let x=input(.1,-10000,-2000);x.marketTimeframe='7d';assert.equal(analyze(x).comparison,false);assert.notEqual(analyze(x).kind,'divergence');
+x=input(.1,-10000,-2000);x.marketAt=new Date(now-11*60000).toISOString();assert.equal(analyze(x).comparison,false);
+x=input(.1,-10000,-2000);x.flow.fetched_at=new Date(now-21*60000).toISOString();assert.equal(analyze(x).kind,'stale');
+x=input(.1,-10000,-2000);x.flow={ok:false};assert.equal(analyze(x).kind,'unavailable');
+assert.equal(analyze({}).kind,'loading');
+assert.equal(analyze({flow:{ok:true,data:{}}}).kind,'unavailable');
+console.log('PASS: divergence, opposing cohorts, missing/zero data, cohort overlap caveat, narrow participation, incompatible windows, stale data and exchange semantics');
