@@ -1,0 +1,7 @@
+{
+  "name": "nansen-pulse-preview",
+  "version": "5.22.0",
+  "private": true,
+  "engines": { "node": "22.x" },
+  "scripts": { "test": "node public-tests.cjs && node quota-tests.cjs" }
+}
